@@ -1,6 +1,7 @@
-
+import React , {useState} from 'react'
 
 const App = () => {
+
   const course = 'Half Stack application development'
   const parts = [
     {
@@ -19,7 +20,7 @@ const App = () => {
 
 
   return (
-    <div>
+    <div> 
       <Header course={course} />
       <Content parts={parts}  />
       <Total parts={parts} />
