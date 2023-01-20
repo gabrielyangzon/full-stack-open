@@ -4,58 +4,99 @@ import axios from 'axios'
 import Input from './components/Input'
 import Title from './components/Title'
 
+import personService from './services/personService'
 
 function App() {
   const[persons,setPersons] = useState([])
-
   const [newName, setNewName] = useState({id : "" ,name:"" , number:""})
   const [searchField, setSearchField] = useState("")
   const [filteredPersons,setFilteredPesons] = useState([...persons])
   const [error , setError] = useState("")
-
+   
+  const [refresh,setFresh] = useState(false);
 
   useEffect(() => {
-    axios.get("http://localhost:3001/persons")
-      .then(response => {
-          console.log(response.data)
-          setPersons(response.data)
-          setFilteredPesons(response.data)
-      })
+    personService
+      .getAll()
+      .then(data => {
+            console.log(data)
+            setPersons(data)
+            setFilteredPesons(data)
+        })
       .catch(error => console.log(error))
-  },[])
+  },[refresh])
 
 
   /// when user click add button
   function addPersonHandler(event){
     event.preventDefault()
 
+    // check if user input has values
     if(newName.name === "" || newName.number ==="" ) {
       setError("Please input all fields") 
       return
     }
 
+    // check if user already exist
     let checkIfPersonExist = persons.find(person => person.name.toLowerCase() === newName.name.toLowerCase())
 
+     // if person does not exist
     if(!checkIfPersonExist){
+ 
+        let newPerson = { 
+            id: Math.floor(Math.random() * Date.now()),
+            name: newName.name , 
+            number : newName.number
+        }
 
-      let newPerson = { 
-          id: Math.floor(Math.random() * Date.now()),
-          name: newName.name , 
-          number : newName.number
-      }
-      console.log(newPerson)
-      setPersons(curr => {
-        setFilteredPesons(curr.concat(newPerson))
-        return curr.concat(newPerson)
-      })
-      
+        
+        // add new user
+        personService.create(newPerson)
+            .then(response => {
 
-      setNewName({id : "" ,name:"" , number:""})
-      setSearchField("")
-      setError("")
-    }else{
-      alert(`${newName.name} is already added to phonebook` )
+              if(response.status=== 201) 
+              {
+                setPersons(curr => {
+                    setFilteredPesons(curr.concat(newPerson))
+                    return curr.concat(newPerson)
+
+                })
+                  clear()
+              }      
+        })
+
+ 
     }
+    //if person exist
+    else{
+
+
+     let isReplace = window.confirm(`${newName.name} is already added to phonebook, do you want to replace the old number with new one?` )
+
+          
+          if(isReplace){
+
+              // replace user phonenumber
+              let updatedPerson ={
+                  id: checkIfPersonExist.id,
+                  name: checkIfPersonExist.name , 
+                  number : newName.number
+              }
+
+                personService.update(updatedPerson.id , updatedPerson)
+                  .then(response => {
+                    console.log(response)
+                     if(response === 200){
+                     
+                         alert(`${newName.name} phonenumber updated`)
+                         setFresh(true)
+                         clear();
+                     }  
+                  })
+          } 
+    }
+
+    
    
   }
 
@@ -77,6 +118,46 @@ function App() {
     setFilteredPesons(filteredData)
   }
 
+   /// when user click deletebutton
+  function onDeleteHandler(id){
+     let personToDelete = persons.find(p => p.id === id)
+     let isOk = window.confirm(`Delete ${personToDelete.name} ?`)
+
+     if(isOk){
+        personService.deletePerson(id).then(response => {
+
+          // if successfully deleted
+         if(response.status === 200){
+
+                // update state
+                setPersons(current => {
+                   let updatedPersons = current.filter(p => p.id !== id)
+                   clear()
+
+                  setFilteredPesons(updatedPersons)
+                  
+                  return updatedPersons
+              })
+         }
+         // if not deleted
+         else{
+           alert("Something wrong happened please try again")
+         }
+
+      })
+
+
+
+         
+     }
+  }
+
+
+  function clear(){
+      setNewName({id : "" ,name:"" , number:""})
+      setSearchField("")
+      setError("")
+  }
 
   return (
     <div>
@@ -97,7 +178,7 @@ function App() {
 
 
       <Title text="Numbers" />
-      <Persons data={filteredPersons}/>
+      <Persons data={filteredPersons} onDelete={onDeleteHandler}/>
     </div>
   )
 }
@@ -144,14 +225,28 @@ function PersonForm({onAddPerson,newName,onChange , error}) {
  }
 
 
-function Persons({data}) {
+function Persons({data , onDelete}) {
 
-  let component = data.length === 0 ? <p>No data</p> : data.map(person => <p key={person.id}>{person.name} : {person.number}</p>)
+  let component = data.length === 0 ? 
+      <tr><td>No data</td></tr> :
+     data.map(person => { 
+      return  (
+                <tr key={person.id}>
+                  <td>{person.name}</td> 
+                  <td>{person.number}</td>
+                  <td><button onClick={()=>onDelete(person.id)}>delete</button></td>
+                </tr>
+            )
+     })
 
   return(
     <>
     <p><b>Count:</b> {data.length}</p>
-     {component}
+       <table>
+        <tbody>
+         {component}
+         </tbody>
+       </table>
     </>
   )
 }
