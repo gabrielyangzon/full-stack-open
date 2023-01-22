@@ -21,6 +21,8 @@ const create = (newPerson) => {
 const deletePerson = (personId) => {
     console.log(personId)
  return axios.delete(`${baseUrl}/${personId}`)
+                .then(response => response.status)
+                .catch(err => err)
 }
 
 const update =(id,updatedPerson) => {

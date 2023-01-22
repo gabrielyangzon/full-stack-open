@@ -1,20 +1,24 @@
 import React , {useEffect, useState} from 'react'
-import axios from 'axios'
-
 import Input from './components/Input'
 import Title from './components/Title'
-
+import Notification from './components/Notification'
 import personService from './services/personService'
+
+
 
 function App() {
   const[persons,setPersons] = useState([])
   const [newName, setNewName] = useState({id : "" ,name:"" , number:""})
   const [searchField, setSearchField] = useState("")
   const [filteredPersons,setFilteredPesons] = useState([...persons])
-  const [error , setError] = useState("")
-   
+  const [error , setError] = useState("") 
   const [refresh,setFresh] = useState(false);
+  const [notification,setNotification] = useState({message :"" , type:""});
 
+
+
+
+  /// whe page reload gets all data
   useEffect(() => {
     personService
       .getAll()
@@ -26,6 +30,13 @@ function App() {
       .catch(error => console.log(error))
   },[refresh])
 
+
+  /// whe user add,update,delete notification timer
+  useEffect(() => {
+     setTimeout(()=>{
+        setNotification({message :"" , type:""})
+     },3000)
+  },[notification])
 
   /// when user click add button
   function addPersonHandler(event){
@@ -59,8 +70,10 @@ function App() {
                 setPersons(curr => {
                     setFilteredPesons(curr.concat(newPerson))
                     return curr.concat(newPerson)
-
                 })
+                  setNotification({
+                      message : `Added ${newPerson.name}`,
+                      type:notification.success })
                   clear()
               }      
         })
@@ -87,9 +100,13 @@ function App() {
                   .then(response => {
                     console.log(response)
                      if(response === 200){
-                     
-                         alert(`${newName.name} phonenumber updated`)
-                         setFresh(true)
+                        
+                        setNotification({
+                          message : `${newName.name} phonenumber updated`,
+                          type:notification.success 
+                        })
+
+                         setFresh(!refresh)
                          clear();
                      }  
                   })
@@ -127,7 +144,7 @@ function App() {
         personService.deletePerson(id).then(response => {
 
           // if successfully deleted
-         if(response.status === 200){
+         if(response === 200){
 
                 // update state
                 setPersons(current => {
@@ -135,20 +152,26 @@ function App() {
                    clear()
 
                   setFilteredPesons(updatedPersons)
-                  
+                  setNotification({
+                          message : `Deleted ${personToDelete.name} `,
+                          type:notification.success 
+                        })
                   return updatedPersons
               })
          }
          // if not deleted
          else{
-           alert("Something wrong happened please try again")
+          console.log(response)
+            setNotification({
+                            message : `Information of ${personToDelete.name} has already been removed from server `,
+                            type:notification.error 
+                          })
+
+                          setFresh(curr => !curr)
          }
 
-      })
 
-
-
-         
+      })     
      }
   }
 
@@ -159,27 +182,43 @@ function App() {
       setError("")
   }
 
+  let notificationComponent = notification.message === "" ? <></>
+                           :  <Notification 
+                                message={notification.message}
+                                type={notification.type}
+                              />
+              
   return (
-    <div>
-    
-     <Title text="Phonebook" />
-     <Filter 
-      label="Filter shown with"
-      value={searchField} 
-  
-      onFilter={onFilterChangeHandler}/>
+      <div>
+        
+        <Title 
+          text="Phonebook" 
+        />
+        
+        {notificationComponent}
 
-      <Title text="Add new Person" />
-      <PersonForm 
-        onAddPerson={addPersonHandler} 
-        newName={newName} 
-        onChange={onChangeInputHandler}
-            error={error}/>
+        <Filter 
+          label="Filter shown with"
+          value={searchField} 
+          onFilter={onFilterChangeHandler}
+          />
 
+          <Title 
+            text="Add new Person" />
+          <PersonForm 
+            onAddPerson={addPersonHandler} 
+            newName={newName} 
+            onChange={onChangeInputHandler}
+            error={error}
+          />
 
-      <Title text="Numbers" />
-      <Persons data={filteredPersons} onDelete={onDeleteHandler}/>
-    </div>
+          <Title 
+            text="Numbers" />
+          <Persons 
+            data={filteredPersons} 
+            onDelete={onDeleteHandler}
+          />
+     </div>
   )
 }
 
@@ -188,11 +227,11 @@ function Filter({label,onFilter,value}){
   return(
     <>
     <Input 
-            label={label}
-            name=""
-            value={value}
-            onChange={onFilter}
-          />
+      label={label}
+      name=""
+      value={value}
+      onChange={onFilter}
+    />
     </>
     )
 }
@@ -208,7 +247,7 @@ function PersonForm({onAddPerson,newName,onChange , error}) {
               name="name" 
               value={newName.name}
               onChange={onChange}/> 
-
+              <br />
             <Input  
               label="number" 
               name="number" 
