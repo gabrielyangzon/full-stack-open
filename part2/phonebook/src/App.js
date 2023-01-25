@@ -65,7 +65,7 @@ function App() {
         personService.create(newPerson)
             .then(response => {
 
-              if(response.status=== 201) 
+              if(response.status=== 201 || response.status === 200) 
               {
                 setPersons(curr => {
                     setFilteredPesons(curr.concat(newPerson))
@@ -75,6 +75,8 @@ function App() {
                       message : `Added ${newPerson.name}`,
                       type:notification.success })
                   clear()
+              }else{
+                alert("something wrong happened please try again")
               }      
         })
 
