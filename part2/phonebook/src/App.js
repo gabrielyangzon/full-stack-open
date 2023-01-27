@@ -67,15 +67,15 @@ function App() {
 
               if(response.status=== 201 || response.status === 200) 
               {
-                setPersons(curr => {
-                    setFilteredPesons(curr.concat(newPerson))
-                    return curr.concat(newPerson)
-                })
+                 setFresh(!refresh)
+
+            
                   setNotification({
                       message : `Added ${newPerson.name}`,
                       type:notification.success })
                   clear()
-              }else{
+              }
+              else{
                 alert("something wrong happened please try again")
               }      
         })
