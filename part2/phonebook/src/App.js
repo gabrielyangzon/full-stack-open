@@ -3,7 +3,7 @@ import Input from './components/Input'
 import Title from './components/Title'
 import Notification from './components/Notification'
 import personService from './services/personService'
-
+import {} from './'
 
 
 function App() {
@@ -35,7 +35,7 @@ function App() {
   useEffect(() => {
      setTimeout(()=>{
         setNotification({message :"" , type:""})
-     },3000)
+     },5000)
   },[notification])
 
   /// when user click add button
@@ -76,7 +76,11 @@ function App() {
                   clear()
               }
               else{
-                alert("something wrong happened please try again")
+                console.log(response.data.error)
+                setNotification({
+                  message : response.data.error,
+                  type : notification.error
+                })
               }      
         })
 
@@ -100,16 +104,23 @@ function App() {
 
                 personService.update(updatedPerson.id , updatedPerson)
                   .then(response => {
-                    console.log(response)
+                   // console.log(response)
                      if(response === 200){
                         
                         setNotification({
                           message : `${newName.name} phonenumber updated`,
-                          type:notification.success 
+                          type : notification.success 
                         })
 
                          setFresh(!refresh)
                          clear();
+
+                     }else{
+                        console.log(response)
+                        setNotification({
+                          message : response.data.error,
+                          type : notification.error
+                        })
                      }  
                   })
           } 

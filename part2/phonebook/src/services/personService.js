@@ -1,9 +1,10 @@
 import axios from 'axios'
 
 ///dev
-//const baseUrl = 'http://localhost:3001/api/persons'
+const baseUrl = 'http://localhost:3001/api/persons'
+
 ///build
-const baseUrl = '/api/persons'
+//const baseUrl = '/api/persons'
 
 const getAll = () => {
     
@@ -16,7 +17,12 @@ const getAll = () => {
 
 const create = (newPerson) => {
     console.log(newPerson)
- return axios.post(baseUrl,newPerson)
+        return axios.post(baseUrl,newPerson)
+        .then(response => response)
+        .catch(error => {
+            console.log(error)
+            return error.response
+    })
 }
 
 
@@ -30,6 +36,10 @@ const deletePerson = (personId) => {
 const update =(id,updatedPerson) => {
     return axios.put(`${baseUrl}/${id}`,updatedPerson)
         .then(response => response.status)
+        .catch(error => {
+            console.log(error)
+            return error.response
+        })
 }
 
 export default {
