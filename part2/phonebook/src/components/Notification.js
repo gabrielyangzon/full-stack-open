@@ -23,6 +23,7 @@ export const notificationType = {
 
 
 const Notification = ({message,type}) => {
+    console.log(type)
     return (<h1 style={type === notificationType.error ? styles.error: styles.success}>
                 {message}
             </h1>)}

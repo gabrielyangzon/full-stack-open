@@ -3,7 +3,7 @@ import Input from './components/Input'
 import Title from './components/Title'
 import Notification from './components/Notification'
 import personService from './services/personService'
-import {} from './'
+import { notificationType } from './components/Notification'
 
 
 function App() {
@@ -72,14 +72,14 @@ function App() {
             
                   setNotification({
                       message : `Added ${newPerson.name}`,
-                      type:notification.success })
+                      type:notificationType.success })
                   clear()
               }
               else{
                 console.log(response.data.error)
                 setNotification({
                   message : response.data.error,
-                  type : notification.error
+                  type : notificationType.error
                 })
               }      
         })
@@ -109,7 +109,7 @@ function App() {
                         
                         setNotification({
                           message : `${newName.name} phonenumber updated`,
-                          type : notification.success 
+                          type : notificationType.success 
                         })
 
                          setFresh(!refresh)
@@ -119,7 +119,7 @@ function App() {
                         console.log(response)
                         setNotification({
                           message : response.data.error,
-                          type : notification.error
+                          type : notificationType.error
                         })
                      }  
                   })
@@ -167,7 +167,7 @@ function App() {
                   setFilteredPesons(updatedPersons)
                   setNotification({
                           message : `Deleted ${personToDelete.name} `,
-                          type:notification.success 
+                          type:notificationType.success 
                         })
                   return updatedPersons
               })
@@ -177,7 +177,7 @@ function App() {
           console.log(response)
             setNotification({
                             message : `Information of ${personToDelete.name} has already been removed from server `,
-                            type:notification.error 
+                            type:notificationType.error 
                           })
 
                           setFresh(curr => !curr)
@@ -265,7 +265,8 @@ function PersonForm({onAddPerson,newName,onChange , error}) {
               label="number" 
               name="number" 
               value={newName.number} 
-              onChange={onChange}/>
+              onChange={onChange}
+              tooltip="ex: 09-1234567 , 040-22334455"/>
 
             <div>
             <button type="submit">add</button>

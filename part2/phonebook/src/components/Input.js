@@ -1,10 +1,14 @@
 import React from 'react';
 
-const Input = ({label,value ,name, onChange}) => {
+const Input = ({label,value ,name, onChange,tooltip}) => {
 
 return (<div style={styles.container}>
             <label style={styles.label}>{label}:</label>
-            <input name={name} value={value} onChange={onChange} />
+            <input 
+                name={name} 
+                value={value} 
+                onChange={onChange} 
+                title={tooltip}/>
     </div>)
 
 
