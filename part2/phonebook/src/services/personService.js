@@ -1,10 +1,10 @@
 import axios from 'axios'
 
 ///dev
-const baseUrl = 'http://localhost:3001/api/persons'
+//const baseUrl = 'http://localhost:3001/api/persons'
 
 ///build
-//const baseUrl = '/api/persons'
+const baseUrl = '/api/persons'
 
 const getAll = () => {
     
